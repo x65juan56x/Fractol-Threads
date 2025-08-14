@@ -6,7 +6,7 @@
 /*   By: jmondon <jmondon@student.42malaga.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 18:48:13 by jmondon           #+#    #+#             */
-/*   Updated: 2025/08/10 14:10:00 by jmondon          ###   ########.fr       */
+/*   Updated: 2025/08/14 17:18:38 by jmondon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,15 +63,15 @@ static void	handle_nova_keys(keys_t key, t_fractol_data *data)
 		return ;
 	if (key == MLX_KEY_S)
 	{
-		data->nova_p -= 0.1;
-		if (data->nova_p < 2.1)
-			data->nova_p = 2.1;
+		data->nova_p -= 1;
+		// if (data->nova_p < 1)
+		// 	data->nova_p = 1;
 	}
 	else if (key == MLX_KEY_W)
 	{
-		data->nova_p += 0.1;
-		if (data->nova_p > 10.0)
-			data->nova_p = 10.0;
+		data->nova_p += 1;
+		// if (data->nova_p > 10)
+		// 	data->nova_p = 10;
 	}
 	if (key == MLX_KEY_S || key == MLX_KEY_W)
 		render_fractal_with_params(data);
