@@ -39,25 +39,25 @@ int	calculate_nova(t_complex_num nova_c, int max_iter, double p)
 	return (n_v.iter);
 }
 
-void	render_nova(mlx_image_t *img, t_fractol_data *data)
-{
-	t_fractal		n;
-	unsigned int	x;
-	unsigned int	y;
+// void	render_nova(mlx_image_t *img, t_fractol_data *data)
+// {
+// 	t_fractal		n;
+// 	unsigned int	x;
+// 	unsigned int	y;
 
-	n.max_iter = 64;
-	init_pov(&n.pov, WIDTH, HEIGHT, 1.25);
-	y = -1;
-	while (++y < img->height)
-	{
-		x = -1;
-		while (++x < img->width)
-		{
-			n.num.r = pix_to_math(x, img->width - 1, n.pov.min_x, n.pov.max_x);
-			n.num.i = pix_to_math(y, img->height - 1, n.pov.min_y, n.pov.max_y);
-			n.iter = calculate_nova(n.num, n.max_iter, data->nova_p);
-			n.color = color_iteration(n.iter, n.max_iter, 2, data);
-			mlx_put_pixel(img, x, y, n.color);
-		}
-	}
-}
+// 	n.max_iter = 64;
+// 	init_pov(&n.pov, WIDTH, HEIGHT, 1.25);
+// 	y = -1;
+// 	while (++y < img->height)
+// 	{
+// 		x = -1;
+// 		while (++x < img->width)
+// 		{
+// 			n.num.r = pix_to_math(x, img->width - 1, n.pov.min_x, n.pov.max_x);
+// 			n.num.i = pix_to_math(y, img->height - 1, n.pov.min_y, n.pov.max_y);
+// 			n.iter = calculate_nova(n.num, n.max_iter, data->nova_p);
+// 			n.color = color_iteration(n.iter, n.max_iter, 2, data);
+// 			mlx_put_pixel(img, x, y, n.color);
+// 		}
+// 	}
+// }

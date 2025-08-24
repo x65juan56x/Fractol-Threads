@@ -30,25 +30,25 @@ int	calculate_mandelbrot(t_complex_num mandel_c, int max_iter)
 	return (iter);
 }
 
-void	render_mandelbrot(mlx_image_t *img, t_fractol_data *data)
-{
-	t_fractal		m;
-	unsigned int	x;
-	unsigned int	y;
+// void	render_mandelbrot(mlx_image_t *img, t_fractol_data *data)
+// {
+// 	t_fractal		m;
+// 	unsigned int	x;
+// 	unsigned int	y;
 
-	m.max_iter = data->max_iter;
-	init_pov(&m.pov, WIDTH, HEIGHT, 2.0);
-	y = -1;
-	while (++y < img->height)
-	{
-		x = -1;
-		while (++x < img->width)
-		{
-			m.num.r = pix_to_math(x, img->width - 1, m.pov.min_x, m.pov.max_x);
-			m.num.i = pix_to_math(y, img->height - 1, m.pov.min_y, m.pov.max_y);
-			m.iter = calculate_mandelbrot(m.num, m.max_iter);
-			m.color = color_iteration(m.iter, m.max_iter, 0, data);
-			mlx_put_pixel(img, x, y, m.color);
-		}
-	}
-}
+// 	m.max_iter = data->max_iter;
+// 	init_pov(&m.pov, WIDTH, HEIGHT, 2.0);
+// 	y = -1;
+// 	while (++y < img->height)
+// 	{
+// 		x = -1;
+// 		while (++x < img->width)
+// 		{
+// 			m.num.r = pix_to_math(x, img->width - 1, m.pov.min_x, m.pov.max_x);
+// 			m.num.i = pix_to_math(y, img->height - 1, m.pov.min_y, m.pov.max_y);
+// 			m.iter = calculate_mandelbrot(m.num, m.max_iter);
+// 			m.color = color_iteration(m.iter, m.max_iter, 0, data);
+// 			mlx_put_pixel(img, x, y, m.color);
+// 		}
+// 	}
+// }

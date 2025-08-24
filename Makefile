@@ -33,8 +33,10 @@ LIBFT_DIR   := libraries/libft
 SRC_COMMON  := $(shell find $(SRC_DIR) -name "*.c")
 SRC_LIBFT   := $(shell find $(LIBFT_DIR) -name "*.c")
 
-OBJ_COMMON  := $(SRC_COMMON:.c=.o)
-OBJ_LIBFT   := $(SRC_LIBFT:.c=.o)
+# Objects in dedicated obj/ dir, mirroring source tree
+OBJ_DIR     := obj
+OBJ_COMMON  := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/src/%.o,$(SRC_COMMON))
+OBJ_LIBFT   := $(patsubst $(LIBFT_DIR)/%.c,$(OBJ_DIR)/libraries/libft/%.o,$(SRC_LIBFT))
 
 
 # Phony targets
@@ -68,14 +70,21 @@ $(NAME): $(OBJ_COMMON) $(OBJ_LIBFT)
 
 # Generic rule for compiling .c -> .o
 
-%.o: %.c
+# Create obj directories as needed
+$(OBJ_DIR)/src/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< $(INC_DIRS) -o $@
+
+$(OBJ_DIR)/libraries/libft/%.o: $(LIBFT_DIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< $(INC_DIRS) -o $@
 
 
 # Remove all object files and ft_printf objects
 
+
 clean:
-	rm -f $(OBJ_COMMON) $(OBJ_LIBFT)
+	rm -rf $(OBJ_DIR)
 	@$(MAKE) -C $(FTPF_DIR) clean
 
 

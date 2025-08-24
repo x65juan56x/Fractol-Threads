@@ -28,7 +28,7 @@ static void	enable_help_elements(t_fractol_data *data)
 
 	data->help_img->enabled = true;
 	i = -1;
-	while (++i < 10)
+	while (++i < 12)
 		if (data->help_text_imgs[i])
 			data->help_text_imgs[i]->enabled = true;
 }
@@ -40,7 +40,7 @@ static void	recreate_help_panel(t_fractol_data *data)
 	i = -1;
 	if (data->help_img)
 	{
-		while (++i < 10)
+		while (++i < 12)
 			if (data->help_text_imgs[i])
 				mlx_delete_image(data->mlx, data->help_text_imgs[i]);
 		mlx_delete_image(data->mlx, data->help_img);
