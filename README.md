@@ -172,7 +172,6 @@ For a pixel with `iter` and `max_iter`:
   - `hook_stuff/` input & resize hooks
   - `color_stuff/` palettes & color helpers
 - `libraries/` vendored deps (MLX42, libft, ft_printf)
-- `obj/` compiled objects (generated)
 - `Makefile` build entry
 
 ## Credits
