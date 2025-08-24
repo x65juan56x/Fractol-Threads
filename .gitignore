@@ -1,0 +1,39 @@
+# Build outputs
+obj/
+fractol
+*.o
+*.a
+
+# MLX42 build artifacts
+libraries/MLX42/build/
+
+# ft_printf build artifacts
+libraries/ft_printf/*.o
+libraries/ft_printf/libftprintf.a
+
+# CMake (covered by build/ above, but keep common patterns here if used elsewhere)
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/
+cmake_install.cmake
+
+# Editor/IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Core dumps
+core
+core.*
+
+# Swap/backup files
+*~
+*.swp
+*.swo
