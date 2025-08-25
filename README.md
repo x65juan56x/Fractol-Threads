@@ -111,7 +111,8 @@ Default iteration budget per fractal:
 Assume height H=720 and thread_count T=6. Rows are split into 6 bands; the last band absorbs any remainder:
 
 ```
- y=0┌───────────────────────────────────────────────┐  band #0 → [   0 .. 119)
+ y=0
+    ┌───────────────────────────────────────────────┐  band #0 → [   0 .. 119)
     │ rows 0..119                                   │
     ├───────────────────────────────────────────────┤  band #1 → [ 120 .. 239)
     │ rows 120..239                                 │
