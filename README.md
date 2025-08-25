@@ -66,6 +66,86 @@ Default iteration budget per fractal:
    - Wait until `remaining == 0`.
 3) Each worker executes `draw_range` on its band, computing per-pixel iterations and drawing with `mlx_put_pixel`.
 
+## Threading model (how it works here)
+
+- Persistent pool
+  - A fixed-size pool is created at startup (default 12 threads) and can be resized at runtime with T/Y.
+  - Threads live for the entire program; they sleep on a condition variable when idle.
+
+- Jobs and partitioning
+  - Each frame, the image is split into horizontal bands: one contiguous [y0, y1) range per worker.
+  - Bands cover the full height; the last worker receives the remainder rows when `h % thread_count != 0`.
+  - Work is static per frame (no work stealing). This keeps overhead low and avoids locks during drawing.
+
+- Scheduling a frame
+  - `render_fractal_with_params` computes the view (`update_view`), fills a `jobs[]` array (one entry per worker with `y0/y1`), sets `remaining = thread_count`, increments `frame_id`, then broadcasts the condition variable.
+  - If `thread_count <= 1`, it falls back to a single call to `draw_range` without synchronization overhead.
+
+- Worker loop
+  - Each worker keeps a `local_frame` counter. It waits until the shared `frame_id` increases, then reads its `jobs[id]` and calls `draw_range(d, y0, y1)` on the current image.
+  - After finishing, it locks the mutex, decrements `remaining`, and if it reaches zero, signals the main thread (which is waiting for the frame to complete). It then updates `local_frame` and waits for the next frame.
+
+- Synchronization
+  - Main and workers share `mtx` (mutex) and `cond` (condition variable).
+  - The main thread waits in a loop until `remaining == 0` to avoid spurious wake-ups.
+  - A `shutdown` boolean is set during destruction to make workers exit their loop cleanly.
+
+- Safety of parallel drawing
+  - Each worker writes only to its own set of rows, so pixel writes never overlap; no per-pixel locking is needed.
+  - `mlx_image_t`’s buffer is updated directly via `mlx_put_pixel`; band separation makes these writes race-free.
+
+- Resizing and image recreation
+  - On window resize, the image is recreated and immediately rendered. Workers always read the current `d->img` when they run, so they target the latest image.
+  - Help overlay is rebuilt separately; workers only draw the fractal image, not UI elements.
+
+- Resizing the pool (T/Y)
+  - Changing thread count triggers a pool resize: current workers are joined, arrays (`threads`, `jobs`, worker args) are reallocated, and a new pool is spawned.
+  - Resizing is done between frames to avoid disrupting in-flight work.
+
+- Performance notes
+  - Static row partitioning is simple and cache-friendly. Load is reasonably balanced for these fractals, but dynamic queues could be added if needed for highly heterogeneous workloads.
+  - CPU usage scales with thread count up to available cores; beyond that, context switching dominates.
+
+### Band partition (example)
+
+Assume height H=720 and thread_count T=6. Rows are split into 6 bands; the last band absorbs any remainder:
+
+```
+ y=0   ┌───────────────────────────────────────────────┐  band #0 → [   0 .. 119)
+   │ rows 0..119                                   │
+   ├───────────────────────────────────────────────┤  band #1 → [ 120 .. 239)
+   │ rows 120..239                                 │
+   ├───────────────────────────────────────────────┤  band #2 → [ 240 .. 359)
+   │ rows 240..359                                 │
+   ├───────────────────────────────────────────────┤  band #3 → [ 360 .. 479)
+   │ rows 360..479                                 │
+   ├───────────────────────────────────────────────┤  band #4 → [ 480 .. 599)
+   │ rows 480..599                                 │
+   ├───────────────────────────────────────────────┤  band #5 → [ 600 .. 720)
+   │ rows 600..719 (last band may be larger)       │
+ y=H   └───────────────────────────────────────────────┘
+```
+
+Each worker i renders only its band [y0, y1), so writes never overlap.
+
+### Frame timeline (condvar-based)
+
+```
+Main thread                          Worker threads (i = 0..T-1)
+-----------                          ---------------------------
+update_view()
+fill jobs[i] with y0/y1             wait(mtx, cond) until frame_id > local_frame
+remaining = T                       └─ wake on broadcast
+frame_id++                          read jobs[i]
+broadcast(cond) ─────────────────▶   draw_range(d, y0, y1)
+wait until remaining == 0           lock(mtx); remaining--; if remaining==0
+            └── signal(cond) and/or wake main
+            unlock(mtx); local_frame = frame_id
+return to event loop                wait for next broadcast
+```
+
+Resizes and pool changes happen between frames to keep this sequence simple and safe.
+
 ### Main state: `t_fractol_data` (essentials)
 
 - Window/image: `w`, `h`, `img`
@@ -74,7 +154,7 @@ Default iteration budget per fractal:
 - Iterations: `base_iter`, `max_iter`
 - Color: `color_scheme`, `invert_mode`
 - UI: `show_help`, `help_img`, `help_text_imgs`
-- Threads: `thread_count`, `threads`, `jobs[]`, `frame_id`, `remaining`, `mtx`, `cond`
+- Threads: `thread_count`, `threads`, `jobs[]`, `frame_id`, `remaining`, `mtx`, `cond`, `shutdown`
 
 ## Fractal math
 
