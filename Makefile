@@ -3,7 +3,7 @@
 
 NAME     := fractol
 CC       := cc
-CFLAGS   := -Wextra -Wall -Werror -Ofast
+CFLAGS   := -Wextra -Wall -Werror -Ofast -march=native -flto
 
 
 # Paths to headers and libraries
