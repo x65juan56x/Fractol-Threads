@@ -22,10 +22,19 @@ int	calculate_nova(t_complex_num nova_c, int max_iter, double p)
 	c_set(&n_v.vars.c, nova_c.r, nova_c.i);
 	while (++n_v.iter < max_iter)
 	{
-		n_v.z_prev.r = n_v.vars.z.r;
-		n_v.z_prev.i = n_v.vars.z.i;
-		c_pow(&n_v.vars.z, n_v.p, &n_v.zp);
-		c_pow(&n_v.vars.z, n_v.p - 1.0, &n_v.zpm1);
+		n_v.z_prev = n_v.vars.z;
+		// potencias: usa versión entera si p es (casi) entero
+		if (fabs(n_v.p - (int)n_v.p) < 1e-9 && (int)n_v.p >= 1)
+		{
+			int pi = (int)n_v.p;
+			c_pow_int(&n_v.vars.z, pi, &n_v.zp);
+			c_pow_int(&n_v.vars.z, pi - 1, &n_v.zpm1);
+		}
+		else
+		{
+			c_pow(&n_v.vars.z, n_v.p, &n_v.zp);
+			c_pow(&n_v.vars.z, n_v.p - 1.0, &n_v.zpm1);
+		}
 		c_set(&n_v.zp_minus1, n_v.zp.r - 1.0, n_v.zp.i);
 		c_set(&n_v.p_zpm1, n_v.p * n_v.zpm1.r, n_v.p * n_v.zpm1.i);
 		c_div(&n_v.zp_minus1, &n_v.p_zpm1, &n_v.div_result);
@@ -33,7 +42,7 @@ int	calculate_nova(t_complex_num nova_c, int max_iter, double p)
 		n_v.vars.z.i = n_v.vars.z.i - n_v.div_result.i + n_v.vars.c.i;
 		n_v.diff.r = n_v.vars.z.r - n_v.z_prev.r;
 		n_v.diff.i = n_v.vars.z.i - n_v.z_prev.i;
-		if (n_v.diff.r * n_v.diff.r + n_v.diff.i * n_v.diff.i < 0.0001)
+		if (n_v.diff.r * n_v.diff.r + n_v.diff.i * n_v.diff.i < 1e-4)
 			break ;
 	}
 	return (n_v.iter);

@@ -43,6 +43,24 @@ void	c_pow(t_complex_num *z, double n, t_complex_num *result)
 	result->r = pow(r, n) * cos(a * n);
 	result->i = pow(r, n) * sin(a * n);
 }
+void c_pow_int(const t_complex_num *z, int n, t_complex_num *out)
+{
+    t_complex_num base = *z;
+    t_complex_num res; c_set(&res, 1.0, 0.0);
+    int e = n < 0 ? -n : n;
+    while (e > 0)
+    {
+        if (e & 1) { t_complex_num tmp; c_mul(&res, &base, &tmp); res = tmp; }
+        t_complex_num sq; c_mul(&base, &base, &sq); base = sq;
+        e >>= 1;
+    }
+    if (n < 0)
+    {
+        t_complex_num one; c_set(&one, 1.0, 0.0);
+        c_div(&one, &res, out);
+    }
+    else *out = res;
+}
 
 int	is_in_radius(t_complex_num *num, double radius_squared)
 {

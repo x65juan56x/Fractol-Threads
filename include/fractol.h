@@ -183,6 +183,7 @@ void c_set(t_complex_num *num, double real, double imag);
 void c_mul(t_complex_num *a, t_complex_num *b, t_complex_num *result);
 void c_div(t_complex_num *a, t_complex_num *b, t_complex_num *result);
 void c_pow(t_complex_num *z, double n, t_complex_num *result);
+void c_pow_int(const t_complex_num *z, int n, t_complex_num *out);
 int  is_in_radius(t_complex_num *num, double radius_squared);
 
 /* Color */
